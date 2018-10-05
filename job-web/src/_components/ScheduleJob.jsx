@@ -14,7 +14,7 @@ class ScheduleJob extends React.Component {
           jobTime: date.toISOString().slice(0,16),
           isRecurrance: false,
           recurringInterval: '',
-          priority: ''
+          priority: 0
         }
     }
 

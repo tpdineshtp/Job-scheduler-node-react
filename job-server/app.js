@@ -7,6 +7,7 @@ var mongoose = require('mongoose');
 var cors = require('cors');
 var cron = require('cron');
 var shell = require('shelljs');
+var schedule = require('node-schedule');
 
 var Job = require('./models/jobModel');
 var Event = require('./models/eventModel');
@@ -48,72 +49,85 @@ function addRecurringJobEntry(doc){
   obj.scheduledTime = jtime;
 
   var new_job = new ScheduleJob(obj);
-  console.log(obj)
   new_job.save(function(err, job) {
     if (err)
       console.log('recurring job failed');
     console.log('recurring job added');
+    JobScheduler(doc);
   });
 }
 
-var cronJob = cron.job("0 */1 * * * *", function(){
-    var t1 = new Date(), t2 = new Date();
-    t2.setMinutes(t2.getMinutes()+1);
+function JobScheduler(doc){
+  var date = new Date(doc.scheduledTime);
+  schedule.scheduleJob(doc._id.toString(), date, function(doc){
 
-    ScheduleJob.find({"scheduledTime": {"$gte": t1, "$lt":t2}, "jobStatus":0}).sort({priority:'-1'}).exec( function(err, doc){
-      if(doc.length > 0){
+    if(doc.recurringJob){
+      addRecurringJobEntry(doc);
+    }
 
-        if(doc[0].recurringJob){
-          addRecurringJobEntry(doc[0]);
-        }
-        doc[0].jobStatus = 1;
+    doc.jobStatus = 1;
+    ScheduleJob.findByIdAndUpdate(doc._id, doc, {new: false}, function(err, model) {
 
-        ScheduleJob.findByIdAndUpdate(doc[0]._id, doc[0], {new: false}, function(err, model) {
-          shell.exec(model.jobName+'.sh', function(code, stdout, stderr) {
-          if(code !== 0) {
-            model.jobStatus = 2;
-            ScheduleJob.findByIdAndUpdate(model._id, model, {new: false}, function(err, model) {
-              shell.echo('Job failed - setting status to failed');
-            })
-          }
-          else {
-            model.jobStatus = 3;
-            ScheduleJob.findByIdAndUpdate(model._id, model, {new: false}, function(err, model) {
-              shell.echo('Job completed - setting status to success');
-            })
-          }
-          });
+      shell.exec(model.jobName+'.sh', function(code, stdout, stderr) {
+      if(code !== 0) {
+        model.jobStatus = 2;
+        ScheduleJob.findByIdAndUpdate(model._id, model, {new: false}, function(err, model) {
+          shell.echo('Job failed - setting status to failed');
         })
       }
-      if(doc.length > 1){
-          for(var i=1;i<doc.length;i++){
-            if(doc[i].recurringJob){
-              addRecurringJobEntry(doc[i]);
-            }
-
-            doc[i].jobStatus = 2;
-            ScheduleJob.findByIdAndUpdate(doc[i]._id, doc[i], {new: false}, function(err, model) {
-              shell.echo('Job failed - setting status to failed');
-            })
-          }
-      }
-    })
-
-    ScheduleJob.find({"scheduledTime": {"$lt": t1}, "jobStatus":0}, function(err, doc){
-      for(var i=0;i<doc.length;i++){
-        if(doc[i].recurringJob){
-          addRecurringJobEntry(doc[i]);
-        }
-
-        doc[i].jobStatus = 2;
-        ScheduleJob.findByIdAndUpdate(doc[i]._id, doc[i], {new: false}, function(err, model) {
-          shell.echo('Job did not start at time - setting status to failed');
+      else {
+        model.jobStatus = 3;
+        ScheduleJob.findByIdAndUpdate(model._id, model, {new: false}, function(err, model) {
+          shell.echo('Job completed - setting status to success');
         })
       }
+      });
+
     })
 
+  }.bind(null, doc));
+}
 
-});
-cronJob.start();
+
+function ScheduleJobs(){
+  ScheduleJob.find({"scheduledTime": {"$gte": new Date()}, "jobStatus":0}).sort({scheduledTime:'1', priority:'1'}).exec( function (err, docs){
+      for(var i = 0; i<docs.length - 1; i++){
+        var d1 = new Date(docs[i].scheduledTime);
+        var d2 = new Date(docs[i+1].scheduledTime);
+        if(d1.valueOf() == d2.valueOf()){
+          if(docs[i].recurringJob){
+            addRecurringJobEntry(docs[i]);
+          }
+
+          docs[i].jobStatus = 2;
+          ScheduleJob.findByIdAndUpdate(docs[i]._id, docs[i], {new: false}, function(err, model) {
+            shell.echo('Low priority job - setting status to failed');
+          })
+        }
+        else{
+          JobScheduler(docs[i]);
+        }
+      }
+      if(docs.length> 0 ){
+        JobScheduler(docs[docs.length - 1]);
+      }
+  })
+
+  ScheduleJob.find({"scheduledTime": {"$lt": new Date()}, "jobStatus":0}, function(err, doc){
+    for(var i=0;i<doc.length;i++){
+      if(doc[i].recurringJob){
+        addRecurringJobEntry(doc[i]);
+      }
+
+      doc[i].jobStatus = 2;
+      ScheduleJob.findByIdAndUpdate(doc[i]._id, doc[i], {new: false}, function(err, model) {
+        shell.echo('Job did not start at time - setting status to failed');
+      })
+    }
+  })
+
+
+}
+ScheduleJobs();
 
 module.exports = app;
