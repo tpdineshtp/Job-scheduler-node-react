@@ -8,6 +8,7 @@ import {ScheduleJob} from './ScheduleJob.jsx'
 import {JobDashboard} from './JobDashboard.jsx'
 import {jobActions } from '../_actions'
 import {CreateEvent} from './CreateEvent.jsx'
+import {JobList} from './JobList.js'
 
 
 class HomePage extends React.Component {
@@ -67,6 +68,9 @@ class HomePage extends React.Component {
         case 'create-event':
             this.setState({selectedComponent: 'create-event'})
             break;
+        case 'job-list':
+            this.setState({selectedComponent: 'job-list'})
+            break;
 
         default:
             this.setState({selectedComponent: 'assignment'})
@@ -88,7 +92,7 @@ class HomePage extends React.Component {
                    <a href="javascript:void(0)"  onClick={this.handleClick.bind(this, 'create-job')}> Create Job</a>
                </li>
                <li>
-                   <a href="#"> Jobs List</a>
+                   <a href="javascript:void(0)"  onClick={this.handleClick.bind(this, 'job-list')}> Job List</a>
                </li>
                <li>
                     <a href="javascript:void(0)"  onClick={this.handleClick.bind(this, 'create-event')}> Create Event</a>
@@ -119,6 +123,7 @@ class HomePage extends React.Component {
                        {this.state.selectedComponent == 'schedule-job' && <ScheduleJob/>}
                        {this.state.selectedComponent == 'job-dashboard' && <JobDashboard/>}
                        {this.state.selectedComponent == 'create-event' && <CreateEvent/>}
+                       {this.state.selectedComponent == 'job-list' && <JobList/>}
 
                    </div>
                </div>

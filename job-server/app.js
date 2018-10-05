@@ -60,8 +60,6 @@ var cronJob = cron.job("0 */1 * * * *", function(){
     var t1 = new Date(), t2 = new Date();
     t2.setMinutes(t2.getMinutes()+1);
 
-
-
     ScheduleJob.find({"scheduledTime": {"$gte": t1, "$lt":t2}, "jobStatus":0}).sort({priority:'-1'}).exec( function(err, doc){
       if(doc.length > 0){
 
