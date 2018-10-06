@@ -179,4 +179,15 @@ router.get('/get-all', function(req, res, next){
 
 })
 
+router.post('/stop-job', function(req, res, next){
+  try { schedule.scheduledJobs[req.body._id.toString()].cancel(); } catch(err){ console.log(err)}
+
+  ScheduleJob.findByIdAndUpdate(req.body._id, req.body, {new: false}, function(err, model) {
+    if(err)
+      res.send(err);
+    res.status(200).send(model);
+  })
+
+})
+
 module.exports = router;

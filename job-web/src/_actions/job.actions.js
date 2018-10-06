@@ -7,8 +7,27 @@ export const jobActions = {
     scheduleJob,
     getScheduledJobs,
     rescheduleJob,
-    createEvent
+    createEvent,
+    stopJob
 };
+
+function stopJob(jobObject) {
+    return dispatch => {
+
+        jobService.stopJob(jobObject)
+            .then(
+                job => {
+                    dispatch(success(job));
+                },
+                error => {
+                    dispatch(failure(error.toString()));
+                }
+            );
+    };
+
+    function success(job) { return { type: jobConstants.JOB_STOP_SUCCESS, job } }
+    function failure(error) { return { type: jobConstants.JOB_STOP_FAILURE, error } }
+}
 
 function createEvent(eventObject) {
     return dispatch => {

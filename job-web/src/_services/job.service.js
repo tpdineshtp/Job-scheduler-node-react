@@ -7,8 +7,23 @@ export const jobService = {
     scheduleJob,
     getScheduledJobs,
     rescheduleJob,
-    createEvent
+    createEvent,
+    stopJob
 };
+
+function stopJob(jobObject) {
+    const requestOptions = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(jobObject)
+    };
+
+    return fetch(`${config.apiUrl}/schedule/stop-job`, requestOptions)
+        .then(handleResponse)
+        .then(user => {
+            return user;
+        });
+}
 
 function createEvent(eventObject) {
     const requestOptions = {

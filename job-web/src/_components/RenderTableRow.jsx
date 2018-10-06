@@ -49,6 +49,13 @@ class RenderTableRow extends React.Component {
       $('#myModal-'+this.props.renderJob._id).hide();
       this.props.dispatch(jobActions.getScheduledJobs())
     }
+    stopJob(){
+      var obj = this.props.renderJob;
+      obj.jobStatus = 2;
+      this.props.dispatch(jobActions.stopJob(obj))
+      $('#deleteModal-'+this.props.renderJob._id).hide();
+      this.props.dispatch(jobActions.getScheduledJobs());
+    }
 
     render() {
         const {renderJob} = this.props;
@@ -74,7 +81,7 @@ class RenderTableRow extends React.Component {
             <a href="javascript:;" className="star">
             <div>
                 {renderJob.jobStatus==2 && <button type="button" class="btn btn-fresh text-capitalize btn-xs" data-toggle="modal" href={"#myModal-"+renderJob._id}>Retry</button>}
-                <button type="button" class="btn btn-hot text-capitalize btn-xs">Delete</button>
+                {renderJob.jobStatus==0 && <button type="button" class="btn btn-hot text-capitalize btn-xs" data-toggle="modal" href={"#deleteModal-"+renderJob._id}>Stop</button>}
 
             </div>
             </a>
@@ -101,6 +108,26 @@ class RenderTableRow extends React.Component {
             </div>
         </div>
     </div>
+
+    <div id={"deleteModal-"+renderJob._id} class="modal fade in">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h4 class="modal-title">Are you sure want to stop this job?</h4>
+            </div>
+            <div class="modal-body">
+            </div>
+            <div class="modal-footer">
+                <div class="btn-group" style={{margin: "0"}}>
+                    <button class="btn btn-danger" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> Cancel</button>
+                    <button class="btn btn-primary" onClick={this.stopJob.bind(this)}><span class="glyphicon glyphicon-check" ></span> Stop</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
         </React.Fragment>
       );
     }

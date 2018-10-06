@@ -112,7 +112,10 @@ router.get('/trigger-event/:eventName', function(req, res, next) {
               });
             }
             else{
+              try{
               schedule.scheduledJobs[docs[i]._id.toString()].cancel();
+              }
+              catch(err){}
               console.log('Existing Job cancelled')
               docs[i].jobStatus = 2;
               ScheduleJob.findByIdAndUpdate(docs[i]._id, docs[i], {new: false}, function(err, model) {

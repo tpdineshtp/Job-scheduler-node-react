@@ -33,6 +33,11 @@ export function job(state = {}, action) {
       ...state,
       eventCreated: true
     }
+    case jobConstants.JOB_STOP_SUCCESS:
+    return {
+      ...state,
+      jobStopped: true
+    }
     default:
       return state
   }
