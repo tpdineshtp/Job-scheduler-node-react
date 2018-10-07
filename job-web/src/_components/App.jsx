@@ -6,6 +6,7 @@ import { history } from '../_helpers';
 
 import { PrivateRoute } from './PrivateRoute';
 import { HomePage } from './HomePage.jsx';
+import { LoginPage } from './LoginPage.jsx'
 import '../_assets/styles.css'
 
 class App extends React.Component {
@@ -18,8 +19,8 @@ class App extends React.Component {
 
             <Router history={history}>
                 <div>
-                    <PrivateRoute exact path="/" component={HomePage} />
-                    <Route path="/home-page" component={HomePage} />
+                    <PrivateRoute exact path="/home-page" component={HomePage} />
+                    <Route path="/login" component={LoginPage} />
                 </div>
             </Router>
       );

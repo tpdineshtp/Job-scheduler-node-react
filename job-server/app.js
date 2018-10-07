@@ -12,11 +12,13 @@ var schedule = require('node-schedule');
 var Job = require('./models/jobModel');
 var Event = require('./models/eventModel');
 var ScheduleJob = require('./models/scheduleJobModel');
+var User = require('./models/UserModel');
 var {JobScheduler, addRecurringJobEntry} = require('./job-modules/JobScheduler')
 
 var jobRouter = require('./routes/job');
 var eventRouter = require('./routes/event');
 var scheduleRouter = require('./routes/schedule');
+var userRouter = require('./routes/user');
 
 var app = express();
 
@@ -36,6 +38,7 @@ app.use(cors());
 app.use('/job', jobRouter);
 app.use('/event', eventRouter);
 app.use('/schedule', scheduleRouter);
+app.use('/user', userRouter);
 
 function ScheduleJobs(){
   ScheduleJob.find({"scheduledTime": {"$gte": new Date()}, "jobStatus":0}).sort({scheduledTime:'1', priority:'1'}).exec( function (err, docs){

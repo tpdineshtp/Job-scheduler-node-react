@@ -88,9 +88,9 @@ class HomePage extends React.Component {
                <li className="sidebar-brand">
                    <a href="javascript:void(0)" onClick={this.handleClick.bind(this, 'assignment')}> Job Scheduler</a>
                </li>
-               <li>
+               {this.props.user.user.userGroup == 'admin' && <li>
                    <a href="javascript:void(0)"  onClick={this.handleClick.bind(this, 'create-job')}> Create Job</a>
-               </li>
+               </li>}
                <li>
                    <a href="javascript:void(0)"  onClick={this.handleClick.bind(this, 'job-list')}> Job List</a>
                </li>
@@ -104,7 +104,10 @@ class HomePage extends React.Component {
                    <a href="javascript:void(0)"  onClick={this.handleClick.bind(this, 'job-dashboard')}> Job's Dashboard</a>
                </li>
                <li>
-                   <a href="#"> Github Link</a>
+                   <a href="https://github.com/tpdineshtp/Job-scheduler-node-react" target="_blank"> Github Link</a>
+               </li>
+               <li>
+                  <a href="/login" >Logout</a>
                </li>
            </ul>
        </nav>
@@ -135,9 +138,9 @@ class HomePage extends React.Component {
 }
 
 function mapStateToProps(state) {
-    const {job} = state;
+    const {job, user} = state;
     return {
-      job
+      job, user
     };
 }
 
